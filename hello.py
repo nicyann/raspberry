@@ -1,23 +1,26 @@
-from flask import Flask
-app = Flask(__name__)
-from flask import render_template
-from led import Led
-led1 = Led('off')
-@app.route('/')
-def index():
-    return render_template('bouton.html')
-
-@app.route('/hello/<name>')
-def hello(name):
-    return 'hello %s' % name
-
-@app.route('/led/<on_off>')
-def led(on_off):
-    if on_off == 'on' or on_off == 'off':
-        led1.status = on_off
-        led1.led_status()
-    elif on_off == 'blink':
-        led1.blink()
-    return render_template('bouton.html')
+import RPi.GPIO as GPIO
+import time
+class Led:
+    def __init__(self, status):
+        self.status = status
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        GPIO.setup(14, GPIO.OUT)
 
 
+    def led_status(self):
+        if (self.status == 'on'):
+            GPIO.output(14, GPIO.HIGH)
+        elif (self.status == 'off'):
+            GPIO.output(14, GPIO.LOW)
+        else:
+            return 'Erreur de manipulation'
+
+    def blink(self):
+        i=0
+        while i < 5:
+            GPIO.output(14, GPIO.HIGH)
+            time.sleep(1)
+            GPIO.output(14, GPIO.LOW)
+            time.sleep(1)
+            i=i+1
